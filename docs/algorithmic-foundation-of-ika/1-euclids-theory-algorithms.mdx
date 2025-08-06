@@ -1,0 +1,176 @@
+---
+title: Euclid's Algorithm and Modular Inverses
+sidebar_position: 3
+---
+
+# 1️⃣ Euclid’s Algorithm (Greatest Common Divisor - GCD)
+
+Euclid's algorithm is a classic method to find the **greatest common divisor (GCD)** of two integers — the largest integer that divides both without leaving a remainder.
+
+## 🔍 Why Is It Important?
+
+-   GCD is fundamental in number theory and cryptography.
+-   It’s used in:
+
+    -   Checking **coprimality** (RSA key generation)
+    -   Finding **modular inverses**
+    -   **Simplifying fractions** and other arithmetic applications
+
+Efficient GCD computation is crucial for modular arithmetic, which underpins many cryptographic protocols.
+
+---
+
+## 📐 Mathematical Definition
+
+For integers `a` and `b`, the GCD is recursively defined as:
+
+```math
+\gcd(a, b) = \begin{cases}
+  a & \text{if } b = 0 \\
+  \gcd(b, a \bmod b) & \text{otherwise}
+\end{cases}
+```
+
+This follows from the principle:
+
+```math
+a = bq + r \quad \Rightarrow \quad \gcd(a, b) = \gcd(b, r)
+```
+
+---
+
+## 🔁 Iterative Algorithm
+
+Steps:
+
+1. While `b ≠ 0`:
+
+    - `r = a mod b`
+    - `a = b`
+    - `b = r`
+
+2. Return `a` when `b = 0`
+
+---
+
+## 🦀 Rust Implementation
+
+```rust
+/// Compute gcd of two integers using Euclid's algorithm.
+pub fn gcd(mut a: u64, mut b: u64) -> u64 {
+    while b != 0 {
+        let r = a % b;
+        a = b;
+        b = r;
+    }
+    a
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_gcd_basic() {
+        assert_eq!(gcd(48, 18), 6);
+        assert_eq!(gcd(101, 103), 1);
+        assert_eq!(gcd(0, 5), 5);
+        assert_eq!(gcd(17, 0), 17);
+        assert_eq!(gcd(0, 0), 0); // edge case
+    }
+}
+```
+
+---
+
+## 🧠 Why It Works
+
+Using the division algorithm:
+
+```math
+a = bq + r, \quad 0 \le r < |b|
+```
+
+If `d` divides both `a` and `b`, it also divides `r`. So:
+
+```math
+\gcd(a, b) = \gcd(b, a \bmod b)
+```
+
+It terminates because `r` decreases with each step.
+
+-   **Time Complexity**: `O(log min(a, b))`
+-   **Space Complexity**: `O(1)` for the iterative version
+
+---
+
+## 🔄 Extended Euclidean Algorithm
+
+It computes integers `x` and `y` such that:
+
+```math
+ax + by = \gcd(a, b)
+```
+
+This is **Bézout’s identity**. When `gcd(a, m) = 1`, `x` is the **modular inverse** of `a mod m`.
+
+---
+
+## 🛠️ Rust Code for Modular Inverse
+
+```rust
+pub fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64) {
+    let (mut r, mut r_new) = (a, b);
+    let (mut x, mut x_new) = (1, 0);
+    let (mut y, mut y_new) = (0, 1);
+
+    while r_new != 0 {
+        let quotient = r / r_new;
+        (r, r_new) = (r_new, r - quotient * r_new);
+        (x, x_new) = (x_new, x - quotient * x_new);
+        (y, y_new) = (y_new, y - quotient * y_new);
+    }
+
+    if r < 0 {
+        (r, x, y) = (-r, -x, -y);
+    }
+
+    (r, x, y)
+}
+
+pub fn modular_inverse(a: i64, m: i64) -> Option<i64> {
+    let (gcd, x, _) = extended_gcd(a, m);
+    if gcd != 1 {
+        None
+    } else {
+        Some((x % m + m) % m)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_modular_inverse() {
+        assert_eq!(modular_inverse(3, 11), Some(4));
+        assert_eq!(modular_inverse(10, 17), Some(12));
+        assert_eq!(modular_inverse(6, 8), None);
+    }
+}
+```
+
+---
+
+## 🔒 Cryptographic Relevance
+
+-   Modular inverse is used in **RSA**, **ElGamal**, **Elliptic Curve Cryptography**
+-   Key building block for solving linear congruences and **Chinese Remainder Theorem**
+
+```math
+ax \equiv 1 \mod m \quad \Rightarrow \quad x = a^{-1} \mod m
+```
+
+If inverse exists (i.e., `gcd(a, m) = 1`), we can **solve** congruences efficiently.
+
+---
