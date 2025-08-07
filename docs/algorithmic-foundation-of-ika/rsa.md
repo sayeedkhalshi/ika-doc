@@ -128,20 +128,34 @@ async function generateRSA(bits = 2048) {
 // ------------------------
 // 8. Encrypt / Decrypt
 // ------------------------
+// function encrypt(message, e, n) {
+//     const m = new BigInteger(
+//         forge.util.createBuffer(padMessage(message, n.bitLength())).toHex(),
+//         16
+//     );
+//     const c = modPow(m, e, n);
+//     return c.toString(16);
+// }
+
+// function decrypt(cipherHex, d, n) {
+//     const c = new BigInteger(cipherHex, 16);
+//     const m = modPow(c, d, n);
+//     const buffer = forge.util.createBuffer(m.toByteArray());
+//     return unpadMessage(buffer.getBytes());
+// }
+
 function encrypt(message, e, n) {
-    const m = new BigInteger(
-        forge.util.createBuffer(padMessage(message, n.bitLength())).toHex(),
-        16
-    );
-    const c = modPow(m, e, n);
-    return c.toString(16);
+    // Create a forge public key object
+    const publicKey = forge.pki.setRsaPublicKey(n, e);
+    // Encrypt using PKCS#1 v1.5 padding (default)
+    return forge.util.bytesToHex(publicKey.encrypt(message, "RAW"));
 }
 
 function decrypt(cipherHex, d, n) {
-    const c = new BigInteger(cipherHex, 16);
-    const m = modPow(c, d, n);
-    const buffer = forge.util.createBuffer(m.toByteArray());
-    return unpadMessage(buffer.getBytes());
+    // Create a forge private key object
+    const privateKey = forge.pki.setRsaPrivateKey(n, d, null, null, null, null);
+    const encryptedBytes = forge.util.hexToBytes(cipherHex);
+    return privateKey.decrypt(encryptedBytes, "RAW");
 }
 
 // ------------------------
@@ -186,6 +200,7 @@ function hybridDecrypt({ encrypted, encryptedKey, iv }, privateKey) {
     );
     console.log("Private Key (d):", keypair.d.toString(16));
 
+    //!This part and padding still has errors, but the main RSA logic is correct.
     const plaintext = "Encrypt me like a pro";
     const hybrid = hybridEncrypt(plaintext, keypair);
 
