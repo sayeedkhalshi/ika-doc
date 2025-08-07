@@ -260,3 +260,6 @@ IKA is a cryptographic coordination engine that redefines blockchain interoperab
 -   Elements and the History of Mathematical Elements
 -   Groups and the History of Mathematical Groups
 -   Polynomial Equations and the History of Mathematical Equations
+-   Complexity theory gave us a framework to call something hard.
+
+-   RSA uses trapdoor math — easy one way, hard to reverse — unless you know a secret.
