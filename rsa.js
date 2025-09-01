@@ -147,6 +147,7 @@ function hybridDecrypt({ encrypted, encryptedKey, iv }, privateKey) {
 // 10. Usage Example
 // ------------------------
 (async () => {
+    console.time();
     const keypair = await generateRSA();
 
     console.log(
@@ -164,4 +165,5 @@ function hybridDecrypt({ encrypted, encryptedKey, iv }, privateKey) {
 
     const decrypted = hybridDecrypt(hybrid, keypair);
     console.log("Decrypted:", decrypted);
+    console.time();
 })();
