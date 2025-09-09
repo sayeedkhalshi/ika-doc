@@ -1,9 +1,9 @@
 ---
 title: Euclid's Algorithm and Modular Inverses
-sidebar_position: 3
+sidebar_position: 1
 ---
 
-# 1️⃣ Euclid’s Algorithm (Greatest Common Divisor - GCD)
+# Euclid’s Algorithm (Greatest Common Divisor - GCD)
 
 Euclid's algorithm is a classic method to find the **greatest common divisor (GCD)** of two integers — the largest integer that divides both without leaving a remainder.
 
